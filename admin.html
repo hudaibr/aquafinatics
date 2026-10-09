@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#073a62">
+  <title>Admin · Aqua Finatics</title>
+  <link rel="icon" href="assets/images/brand-logo.png" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+  <script defer src="supabase-config.js"></script>
+  <script defer src="admin.js"></script>
+</head>
+<body>
+  <header class="admin-topbar">
+    <a class="admin-brand" href="index.html" aria-label="Aqua Finatics storefront">
+      <img src="assets/images/brand-logo.png" alt="Aqua Finatics">
+      <span><strong>Store admin</strong><small>Catalogue management</small></span>
+    </a>
+    <div class="topbar-actions">
+      <a class="store-link" href="index.html">View storefront <span aria-hidden="true">↗</span></a>
+      <button class="button button-quiet" id="sign-out" type="button" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <section class="setup-banner" id="setup-banner" role="status">
+      <span class="setup-icon" aria-hidden="true">i</span>
+      <div>
+        <strong>Connect the catalogue backend to enable sign-in.</strong>
+        <p>Add your Supabase project URL and public key to <code>supabase-config.js</code>, then complete the database steps in <a href="SUPABASE_SETUP.md">SUPABASE_SETUP.md</a>. This preview contains no demo credentials.</p>
+      </div>
+    </section>
+
+    <section class="auth-card" id="login-panel" aria-labelledby="login-title">
+      <div class="auth-mark" aria-hidden="true">AF</div>
+      <p class="eyebrow">AQUA FINATICS · KARACHI</p>
+      <h1 id="login-title">Welcome back</h1>
+      <p class="auth-intro">Sign in to update prices, availability and seafood images.</p>
+      <form id="login-form" novalidate>
+        <label for="login-email">Admin email</label>
+        <input id="login-email" name="email" type="email" autocomplete="username" placeholder="name@example.com" required disabled>
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Your secure password" required disabled>
+        <p class="form-message" id="login-message" role="status" aria-live="polite"></p>
+        <button class="button button-primary button-wide" id="login-submit" type="submit" disabled>Sign in <span aria-hidden="true">→</span></button>
+      </form>
+      <p class="auth-footnote"><span aria-hidden="true">◈</span> Only an account allow-listed in Supabase can manage this catalogue.</p>
+    </section>
+
+    <section class="dashboard" id="dashboard" hidden>
+      <div class="dashboard-heading">
+        <div>
+          <p class="eyebrow">PRODUCTS & PRICING</p>
+          <h1>Seafood catalogue</h1>
+          <p class="dashboard-intro">Changes are saved to the shared catalogue and appear on the storefront.</p>
+        </div>
+        <button class="button button-primary" id="add-product" type="button"><span aria-hidden="true">＋</span> Add product</button>
+      </div>
+
+      <div class="dashboard-alert" id="dashboard-message" role="status" aria-live="polite" hidden></div>
+
+      <div class="catalog-tools">
+        <label class="catalog-search" for="catalog-search">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.8"></circle><path d="m13.2 13.2 4 4"></path></svg>
+          <input id="catalog-search" type="search" placeholder="Search products or local names">
+        </label>
+        <label class="category-filter" for="category-filter">
+          <span>Category</span>
+          <select id="category-filter">
+            <option value="all">All categories</option>
+            <option value="fish">Fish</option>
+            <option value="prawns">Prawns</option>
+            <option value="crustaceans">Crab & lobster</option>
+            <option value="special">Special seafood</option>
+          </select>
+        </label>
+        <span class="product-count" id="product-count">—</span>
+      </div>
+
+      <div class="admin-content" id="admin-content">
+        <section class="product-list-card" aria-label="Product list">
+          <div class="table-scroll">
+            <table class="product-table">
+              <thead><tr><th scope="col">Product</th><th scope="col">Category</th><th scope="col">Price per kg</th><th scope="col">Availability</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="product-rows"><tr><td colspan="5" class="table-empty">Sign in to load the catalogue.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="editor-card" id="editor-panel" aria-labelledby="editor-title" hidden>
+          <div class="editor-heading">
+            <div><p class="eyebrow">PRODUCT DETAILS</p><h2 id="editor-title">Add a product</h2></div>
+            <button class="icon-button" id="close-editor" type="button" aria-label="Close editor">×</button>
+          </div>
+          <form id="product-form" novalidate>
+            <input id="product-id" name="id" type="hidden">
+            <label for="product-name">Product name <span>*</span></label>
+            <input id="product-name" name="name" type="text" maxlength="90" required placeholder="e.g. King Fish">
+
+            <label for="product-local">Local name <small>Optional</small></label>
+            <input id="product-local" name="local_name" type="text" maxlength="100" placeholder="e.g. Surmai">
+
+            <label for="product-category">Category <span>*</span></label>
+            <select id="product-category" name="category" required>
+              <option value="fish">Fish</option>
+              <option value="prawns">Prawns</option>
+              <option value="crustaceans">Crab & lobster</option>
+              <option value="special">Special seafood</option>
+            </select>
+
+            <div class="price-fields">
+              <div><label for="price-low">Price per kg (PKR) <span>*</span></label><input id="price-low" name="price_low" type="number" min="0" step="1" required></div>
+              <div><label for="price-high">Max, if listed as a range <small>Optional</small></label><input id="price-high" name="price_high" type="number" min="0" step="1"></div>
+            </div>
+            <p class="field-hint">Enter the single per-kg price in both fields. Keep a supplier-listed range only when one is provided.</p>
+
+            <label for="product-detail">Short detail <small>Optional</small></label>
+            <input id="product-detail" name="detail" type="text" maxlength="120" placeholder="e.g. Boneless">
+
+            <div class="image-editor">
+              <div class="image-heading"><label for="product-image-url">Product image <small>Optional</small></label><span>Upload or paste a URL</span></div>
+              <div class="image-preview" id="image-preview"><span>Image preview</span></div>
+              <label class="upload-control" for="product-image-file"><span class="upload-icon" aria-hidden="true">↑</span><span><strong>Choose image file</strong><small>JPG, PNG or WebP · max 8 MB</small></span><input id="product-image-file" name="image_file" type="file" accept="image/jpeg,image/png,image/webp"></label>
+              <label class="sr-only" for="product-image-url">Image URL</label>
+              <input id="product-image-url" name="image_url" type="url" maxlength="1000" placeholder="https://…">
+              <p class="field-hint">An uploaded image takes priority over the URL. Leave both blank to use the catalogue cut-out.</p>
+            </div>
+
+            <label class="stock-toggle" for="product-stock"><input id="product-stock" name="in_stock" type="checkbox" checked><span class="toggle-ui" aria-hidden="true"></span><span><strong>Available to order</strong><small>Customers can add this item to their basket.</small></span></label>
+            <p class="form-message" id="save-message" role="status" aria-live="polite"></p>
+            <div class="editor-actions"><button class="button button-secondary" id="cancel-edit" type="button">Cancel</button><button class="button button-primary" id="save-product" type="submit">Save product</button></div>
+          </form>
+        </aside>
+      </div>
+
+      <p class="dashboard-footnote">Public catalogue fields are visible to customers. Admin write access is enforced by Supabase policies, not by hiding this page.</p>
+    </section>
+  </main>
+
+  <footer class="admin-footer"><span>© 2026 Aqua Finatics · Karachi</span><a href="SUPABASE_SETUP.md">Backend setup & security notes</a></footer>
+</body>
+</html>
